@@ -2,13 +2,14 @@ extern crate rustc_version;
 
 use std::env;
 use std::fmt::Display;
+use std::process;
 use std::str::FromStr;
 use std::time::{UNIX_EPOCH, SystemTime, SystemTimeError};
 
 pub use rustc_version::Version;
 
 macro_rules! __make {
-    ($(($varname:expr, $fieldname:ident, $field_ty:ty, $prepare:expr, $extract:expr,));*; ) => {
+    ($(($varname:expr, $fieldname:ident, $field_ty:ty, $prepare:expr, $parse:expr,));*; ) => {
 
 #[derive(Debug)]
 pub struct BuildInfo {
@@ -21,11 +22,11 @@ impl BuildInfo {
     #[doc(hidden)]
     pub fn new(
         $(
-            $fieldname: &'static str,
+            $fieldname: Option<&'static str>,
         )*
     ) -> Self {
         $(
-            let $fieldname: $field_ty = $extract($fieldname);
+            let $fieldname: $field_ty = $parse($fieldname);
         )*
 
         Self {
@@ -59,42 +60,46 @@ macro_rules! build_info {
 __make!(
     (
         "TARGET_TRIPLE", target_triple, &'static str,
-        var("TARGET"),
-        |x| x,
+        Some(var("TARGET")),
+        |x| Option::unwrap(x),
     );
     (
         "HOST_TRIPLE", host_triple, &'static str,
-        var("HOST"),
-        |x| x,
+        Some(var("HOST")),
+        |x| Option::unwrap(x),
     );
     (
         "OPT_LEVEL", opt_level, &'static str,
-        var("OPT_LEVEL"),
-        |x| x,
+        Some(var("OPT_LEVEL")),
+        |x| Option::unwrap(x),
 
     );
     (
         "DEBUG", debug, bool,
-        var("DEBUG"),
-        |x| bool::from_str(x).expect("buildinfo debug"),
+        Some(var("DEBUG")),
+        |x| bool::from_str(Option::unwrap(x)).expect("buildinfo debug"),
     );
     (
         "PROFILE", profile, &'static str,
-        var("PROFILE"),
-        |x| x,
+        Some(var("PROFILE")),
+        |x| Option::unwrap(x),
     );
 
     (
         "RUSTC_VERSION", rustc_version, Version,
-        rustc_version::version().expect("buildinfo prepare rustc_version"),
-        |x| Version::parse(x).expect("buildinfo build rustc_version"),
+        Some(rustc_version::version().expect("buildinfo prepare rustc_version")),
+        |x| Version::parse(Option::unwrap(x)).expect("buildinfo build rustc_version"),
     );
     (
         "COMPILED_AT", compiled_at, u64,
-        now().expect("buildinfo prepare now"),
-        |x| u64::from_str(x).expect("buildinfo build now"),
+        Some(now().expect("buildinfo prepare now")),
+        |x| u64::from_str(Option::unwrap(x)).expect("buildinfo build now"),
     );
-
+    (
+        "GIT_COMMIT", git_commit, Option<&'static str>,
+        git_commit().ok(),
+        |x| x,
+    );
 );
 
 impl BuildInfo {
@@ -134,10 +139,17 @@ impl BuildInfo {
     pub fn compiled_at(&self) -> u64 {
         self.compiled_at
     }
+
+    /// Latest Git commit.
+    pub fn git_commit(&self) -> Option<&'static str> {
+        self.git_commit
+    }
 }
 
-fn print_env<K: Display, V: Display>(key: K, value: V) {
-    println!("cargo:rustc-env=BUILD_INFO_{}={}", key, value)
+fn print_env<K: Display, V: Display>(key: K, value: Option<V>) {
+    if let Some(value) = value {
+        println!("cargo:rustc-env=BUILD_INFO_{}={}", key, value)
+    }
 }
 
 fn var<K: AsRef<str>>(key: K) -> String {
@@ -153,7 +165,7 @@ fn var<K: AsRef<str>>(key: K) -> String {
 #[doc(hidden)]
 macro_rules! __build_info_var {
     ($name:expr) => {
-        env!(concat!("BUILD_INFO_", $name))
+        option_env!(concat!("BUILD_INFO_", $name))
     };
 }
 
@@ -161,4 +173,21 @@ fn now() -> Result<u64, SystemTimeError> {
     let now = SystemTime::now();
     let elapsed = now.duration_since(UNIX_EPOCH)?;
     Ok(elapsed.as_secs())
+}
+
+fn git_commit() -> Result<String, ::std::io::Error> {
+    let output = process::Command::new("git")
+        .arg("rev-parse").arg("--verify").arg("HEAD")
+        .output()?;
+
+    if output.status.success() {
+        let hash = String::from_utf8_lossy(&output.stdout);
+        if !hash.is_empty() {
+            Ok(hash.to_string())
+        } else {
+            Err(::std::io::Error::new(::std::io::ErrorKind::UnexpectedEof, "empty hash"))
+        }
+    } else {
+        Err(::std::io::Error::new(::std::io::ErrorKind::Other, "git failed"))
+    }
 }
