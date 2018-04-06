@@ -58,12 +58,12 @@ macro_rules! build_info {
 
 __make!(
     (
-        "TARGET", target, &'static str,
+        "TARGET_TRIPLE", target_triple, &'static str,
         var("TARGET"),
         |x| x,
     );
     (
-        "HOST", host, &'static str,
+        "HOST_TRIPLE", host_triple, &'static str,
         var("HOST"),
         |x| x,
     );
@@ -96,6 +96,36 @@ __make!(
     );
 
 );
+
+impl BuildInfo {
+    pub fn target_triple(&self) -> &str {
+        self.target_triple
+    }
+
+    pub fn host_triple(&self) -> &str {
+        self.host_triple
+    }
+
+    pub fn opt_level(&self) -> &str {
+        self.opt_level
+    }
+
+    pub fn debug(&self) -> bool {
+        self.debug
+    }
+
+    pub fn profile(&self) -> &str {
+        self.profile
+    }
+
+    pub fn rustc_version(&self) -> &Version {
+        &self.rustc_version
+    }
+
+    pub fn compiled_at(&self) -> u64 {
+        self.compiled_at
+    }
+}
 
 fn print_env<K: Display, V: Display>(key: K, value: V) {
     println!("cargo:rustc-env=BUILD_INFO_{}={}", key, value)
