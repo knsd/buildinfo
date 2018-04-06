@@ -1,0 +1,11 @@
+[package]
+name = "buildinfo-example-simple"
+description = "Simple example"
+version = "0.1.0"
+publish = false
+
+[dependencies]
+buildinfo = { path = "../../buildinfo" }
+
+[build-dependencies]
+buildinfo = { path = "../../buildinfo" }
