@@ -5,7 +5,7 @@ version = "0.1.0"
 publish = false
 
 [dependencies]
-buildinfo = { path = "../../buildinfo" }
+buildinfo = { path = "../../lib" }
 
 [build-dependencies]
-buildinfo = { path = "../../buildinfo" }
+buildinfo = { path = "../../lib" }

@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "buildinfo",
+    "lib",
     "examples/simple",
 ]
