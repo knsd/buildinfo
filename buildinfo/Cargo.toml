@@ -1,0 +1,7 @@
+[package]
+name = "buildinfo"
+version = "0.1.0"
+authors = ["Fedor Gogolev <knsd@knsd.net>"]
+
+[dependencies]
+rustc_version = "0.2.2"
