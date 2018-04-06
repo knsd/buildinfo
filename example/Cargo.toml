@@ -1,5 +1,5 @@
 [package]
-name = "buildinfo-example-simple"
+name = "buildinfo-example"
 description = "Simple example"
 version = "0.1.0"
 publish = false
