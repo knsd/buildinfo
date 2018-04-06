@@ -3,6 +3,7 @@ extern crate rustc_version;
 use std::env;
 use std::fmt::Display;
 use std::str::FromStr;
+use std::time::{UNIX_EPOCH, SystemTime, SystemTimeError};
 
 pub use rustc_version::Version;
 
@@ -82,11 +83,18 @@ __make!(
         var("PROFILE"),
         |x| x,
     );
+
     (
         "RUSTC_VERSION", rustc_version, Version,
         rustc_version::version().expect("buildinfo prepare rustc_version"),
         |x| Version::parse(x).expect("buildinfo build rustc_version"),
     );
+    (
+        "COMPILED_AT", compiled_at, u64,
+        now().expect("buildinfo prepare now"),
+        |x| u64::from_str(x).expect("buildinfo build now"),
+    );
+
 );
 
 fn print_env<K: Display, V: Display>(key: K, value: V) {
@@ -108,4 +116,10 @@ macro_rules! __build_info_var {
     ($name:expr) => {
         env!(concat!("BUILD_INFO_", $name))
     };
+}
+
+fn now() -> Result<u64, SystemTimeError> {
+    let now = SystemTime::now();
+    let elapsed = now.duration_since(UNIX_EPOCH)?;
+    Ok(elapsed.as_secs())
 }
