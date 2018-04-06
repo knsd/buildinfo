@@ -98,30 +98,39 @@ __make!(
 );
 
 impl BuildInfo {
+    /// The target triple that is being compiled for. Some more information about target
+    /// triples can be found in
+    /// [clang’s own documentation](http://clang.llvm.org/docs/CrossCompilation.html#target-triple).
     pub fn target_triple(&self) -> &str {
         self.target_triple
     }
 
+    /// The host triple of the rust compiler.
     pub fn host_triple(&self) -> &str {
         self.host_triple
     }
 
+    /// `opt-level` compiler option.
     pub fn opt_level(&self) -> &str {
         self.opt_level
     }
 
+    /// Is debug information included.
     pub fn debug(&self) -> bool {
         self.debug
     }
 
+    /// `release` for release builds, `debug` for other builds.
     pub fn profile(&self) -> &str {
         self.profile
     }
 
+    /// Version of rustc compiler.
     pub fn rustc_version(&self) -> &Version {
         &self.rustc_version
     }
 
+    /// Compilation Unix time.
     pub fn compiled_at(&self) -> u64 {
         self.compiled_at
     }
