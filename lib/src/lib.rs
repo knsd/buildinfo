@@ -44,7 +44,7 @@ pub fn prepare() {
 }
 
 #[macro_export]
-macro_rules! build_info {
+macro_rules! buildinfo {
     () => {
         $crate::BuildInfo::new(
             $(
@@ -163,7 +163,7 @@ fn var<K: AsRef<str>>(key: K) -> String {
 
 #[macro_export]
 #[doc(hidden)]
-macro_rules! __build_info_var {
+macro_rules! __buildinfo_var {
     ($name:expr) => {
         option_env!(concat!("BUILD_INFO_", $name))
     };

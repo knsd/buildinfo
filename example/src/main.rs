@@ -1,6 +1,6 @@
 #[macro_use] extern crate buildinfo;
 
 fn main() {
-    let info = build_info!();
+    let info = buildinfo!();
     println!("{:?}", info)
 }
