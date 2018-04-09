@@ -51,7 +51,7 @@ macro_rules! buildinfo {
     () => {
         $crate::BuildInfo::new(
             $(
-                __build_info_var!($varname),
+                __buildinfo_var!($varname),
             )*
         )
     };
