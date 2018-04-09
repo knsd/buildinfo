@@ -4,7 +4,7 @@ use std::env;
 use std::fmt::Display;
 use std::process;
 use std::str::FromStr;
-use std::time::{UNIX_EPOCH, SystemTime, SystemTimeError};
+use std::time::{UNIX_EPOCH, SystemTime, SystemTimeError, Duration};
 
 pub use rustc_version::Version;
 
@@ -94,9 +94,11 @@ __make!(
         |x| Version::parse(Option::unwrap(x)).expect("buildinfo build rustc_version"),
     );
     (
-        "COMPILED_AT", compiled_at, u64,
+        "COMPILED_AT", compiled_at, SystemTime,
         Some(now().expect("buildinfo prepare now")),
-        |x| u64::from_str(Option::unwrap(x)).expect("buildinfo build now"),
+        |x| UNIX_EPOCH + Duration::from_secs(
+                u64::from_str(Option::unwrap(x)).expect("buildinfo build now")
+            ),
     );
     (
         "GIT_COMMIT", git_commit, Option<&'static str>,
@@ -139,7 +141,7 @@ impl BuildInfo {
     }
 
     /// Compilation Unix time.
-    pub fn compiled_at(&self) -> u64 {
+    pub fn compiled_at(&self) -> SystemTime {
         self.compiled_at
     }
 
