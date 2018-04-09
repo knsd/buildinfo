@@ -37,12 +37,15 @@ impl BuildInfo {
     }
 }
 
+/// This function creates some new environment variables which can be used
+/// by `buildinfo!` macro, it's intended to be used in `build.rs` script.
 pub fn prepare() {
     $(
         print_env($varname, $prepare);
     )*
 }
 
+/// This macro can be used to obtain `BuildInfo` instance in compile time.
 #[macro_export]
 macro_rules! buildinfo {
     () => {
