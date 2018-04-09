@@ -146,7 +146,7 @@ impl BuildInfo {
     }
 
     /// Latest Git commit.
-    pub fn git_commit(&self) -> Option<&'static str> {
+    pub fn git_commit(&self) -> Option<&str> {
         self.git_commit
     }
 }
