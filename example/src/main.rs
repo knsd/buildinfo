@@ -11,6 +11,7 @@ fn main() {
     println!("Rustc version: {}", info.rustc_version());
     println!("Compiled at: {:?}", info.compiled_at());
     println!("Git commit: {:?}", info.git_commit());
+    println!("Hostname: {:?}", info.hostname());
 
     println!("{:?}", info)
 }

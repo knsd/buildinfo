@@ -105,6 +105,11 @@ __make!(
         git_commit().ok(),
         |x| x,
     );
+    (
+        "HOSTNAME", hostname, &'static str,
+        ffi::hostname().ok(),
+        |x| Option::unwrap(x),
+    );
 );
 
 impl BuildInfo {
@@ -148,6 +153,11 @@ impl BuildInfo {
     /// Latest Git commit.
     pub fn git_commit(&self) -> Option<&str> {
         self.git_commit
+    }
+
+    /// Build hostname.
+    pub fn hostname(&self) -> &str {
+        self.hostname
     }
 }
 
@@ -194,5 +204,45 @@ fn git_commit() -> Result<String, ::std::io::Error> {
         }
     } else {
         Err(::std::io::Error::new(::std::io::ErrorKind::Other, "git failed"))
+    }
+}
+
+#[cfg(unix)]
+mod ffi {
+    extern crate libc;
+
+    use std::ffi::CStr;
+
+    pub fn hostname() -> Result<String, ::std::io::Error> {
+        let mut buffer = [0i8; 256];
+        unsafe {
+            if libc::gethostname(buffer.as_mut_ptr(), buffer.len()) == -1 {
+                return Err(::std::io::Error::last_os_error())
+            }
+            Ok(CStr::from_ptr(buffer.as_ptr()).to_string_lossy().into_owned())
+        }
+    }
+}
+
+#[cfg(windows)]
+mod ffi {
+    extern crate winapi;
+
+    use std::iter::FromIterator;
+
+    use self::winapi::um::winbase::GetComputerNameA;
+    use self::winapi::um::winnt::CHAR;
+    use self::winapi::shared::minwindef::DWORD;
+
+    pub fn hostname() -> Result<String, ::std::io::Error> {
+        let mut buffer = [0 as CHAR; 256];
+        let mut len = buffer.len() as DWORD;
+
+        unsafe {
+            if GetComputerNameA(buffer.as_mut_ptr(), &mut len) == 0 {
+                return Err(::std::io::Error::last_os_error())
+            }
+        }
+        Ok(String::from_iter(buffer.iter().take(len as usize).map(|&i| i as u8 as char)))
     }
 }
