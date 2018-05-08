@@ -6,3 +6,7 @@ rust:
 notifications:
     webhooks:
         - http://heimdallr.thesharp.org/travis
+script:
+  - cargo build --verbose
+  - cargo test --verbose
+  - cargo run -p buildinfo-example
