@@ -12,6 +12,7 @@ fn main() {
     println!("Compiled at: {:?}", info.compiled_at());
     println!("Git commit: {:?}", info.git_commit());
     println!("Hostname: {:?}", info.hostname());
+    println!("Username: {:?}", info.username());
 
     println!("{:?}", info)
 }

@@ -110,6 +110,11 @@ __make!(
         ffi::hostname().ok(),
         |x| Option::unwrap(x),
     );
+    (
+        "USERNAME", username, &'static str,
+        ffi::username().ok(),
+        |x| Option::unwrap(x),
+    );
 );
 
 impl BuildInfo {
@@ -158,6 +163,11 @@ impl BuildInfo {
     /// Build hostname.
     pub fn hostname(&self) -> &str {
         self.hostname
+    }
+
+    /// Build username.
+    pub fn username(&self) -> &str {
+        self.username
     }
 }
 
@@ -222,6 +232,17 @@ mod ffi {
             Ok(CStr::from_ptr(buffer.as_ptr()).to_string_lossy().into_owned())
         }
     }
+
+    pub fn username() -> Result<String, ::std::io::Error> {
+        unsafe {
+            let uid = libc::geteuid();
+            let passwd = libc::getpwuid(uid);
+            if passwd.is_null() {
+                return Err(::std::io::Error::last_os_error())
+            }
+            Ok(CStr::from_ptr((*passwd).pw_name).to_string_lossy().into_owned())
+        }
+    }
 }
 
 #[cfg(windows)]
@@ -230,7 +251,7 @@ mod ffi {
 
     use std::iter::FromIterator;
 
-    use self::winapi::um::winbase::GetComputerNameA;
+    use self::winapi::um::winbase::{GetComputerNameA, GetUserNameA};
     use self::winapi::um::winnt::CHAR;
     use self::winapi::shared::minwindef::DWORD;
 
@@ -240,6 +261,18 @@ mod ffi {
 
         unsafe {
             if GetComputerNameA(buffer.as_mut_ptr(), &mut len) == 0 {
+                return Err(::std::io::Error::last_os_error())
+            }
+        }
+        Ok(String::from_iter(buffer.iter().take(len as usize).map(|&i| i as u8 as char)))
+    }
+
+    pub fn username() -> Result<String, ::std::io::Error> {
+        let mut buffer = [0 as CHAR; 256];
+        let mut len = buffer.len() as DWORD;
+
+        unsafe {
+            if GetUserNameA(buffer.as_mut_ptr(), &mut len) == 0 {
                 return Err(::std::io::Error::last_os_error())
             }
         }
