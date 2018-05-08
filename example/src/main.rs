@@ -9,7 +9,7 @@ fn main() {
     println!("Debug: {}", info.debug());
     println!("Profile: {}", info.profile());
     println!("Rustc version: {}", info.rustc_version());
-    println!("Compiled_at: {:?}", info.compiled_at());
+    println!("Compiled at: {:?}", info.compiled_at());
     println!("Git commit: {:?}", info.git_commit());
 
     println!("{:?}", info)
