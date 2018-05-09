@@ -276,6 +276,12 @@ mod ffi {
                 return Err(::std::io::Error::last_os_error())
             }
         }
+
+        // Skip NUL byte
+        if len > 0 {
+            len -= 1;
+        }
+
         Ok(String::from_iter(buffer.iter().take(len as usize).map(|&i| i as u8 as char)))
     }
 }
