@@ -102,17 +102,17 @@ __make!(
     );
     (
         "GIT_COMMIT", git_commit, Option<&'static str>,
-        git_commit().ok(),
+        Some(git_commit().expect("buildinfo prepare git commit")),
         |x| x,
     );
     (
         "HOSTNAME", hostname, &'static str,
-        ffi::hostname().ok(),
+        Some(ffi::hostname().expect("buildinfo prepare hostname")),
         |x| Option::unwrap(x),
     );
     (
         "USERNAME", username, &'static str,
-        ffi::username().ok(),
+        Some(ffi::username().expect("buildinfo prepare username")),
         |x| Option::unwrap(x),
     );
 );
