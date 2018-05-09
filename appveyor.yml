@@ -118,6 +118,6 @@ build: false
 #directly or perform other testing commands. Rust will automatically be placed in the PATH
 # environment variable.
 test_script:
-  - cargo build --verbose
+  - cargo build -vv
   - cargo test --verbose
   - cargo run -p buildinfo-example

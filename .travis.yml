@@ -7,6 +7,6 @@ notifications:
     webhooks:
         - http://heimdallr.thesharp.org/travis
 script:
-  - cargo build --verbose
+  - cargo build -vv
   - cargo test --verbose
   - cargo run -p buildinfo-example
