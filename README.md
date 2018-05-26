@@ -1,5 +1,6 @@
 # buildinfo
 [![Build Status](https://travis-ci.org/knsd/buildinfo.svg?branch=master)](https://travis-ci.org/knsd/buildinfo)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/knsd/buildinfo?branch=master&svg=true)](https://ci.appveyor.com/project/knsd/buildinfo)
 [![Latest Version](https://img.shields.io/crates/v/buildinfo.svg)](https://crates.io/crates/buildinfo/)
 [![docs](https://docs.rs/buildinfo/badge.svg)](https://docs.rs/buildinfo)
 
