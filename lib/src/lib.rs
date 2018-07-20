@@ -102,7 +102,7 @@ __make!(
     );
     (
         "GIT_COMMIT", git_commit, Option<&'static str>,
-        Some(git_commit().expect("buildinfo prepare git commit")),
+        git_commit().ok(),
         |x| x,
     );
     (
